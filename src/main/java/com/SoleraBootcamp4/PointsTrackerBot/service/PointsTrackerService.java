@@ -8,6 +8,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.AbstractMap.SimpleEntry;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,11 @@ public class PointsTrackerService {
 
     @Autowired
     PointTrackerBot bot;
+
+    @PostConstruct
+    public void init() {
+        bot.setService(this);
+    }
 
     Gson gson = new Gson();
 
