@@ -29,7 +29,6 @@ public class PointTrackerBot extends TelegramLongPollingBot {
         try {
             SendMessage message = new SendMessage();
             message.setChatId(chatId);
-            message.enableHtml(true);
             if (chatId.equals(groupId)) {
                 if (receivedMessage.getText().equals("/scoreboard")
                         || receivedMessage.getText().equals("/scoreboard@" + getBotUsername())) {

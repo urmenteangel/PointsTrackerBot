@@ -8,8 +8,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.AbstractMap.SimpleEntry;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.message.Message;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,12 +28,7 @@ public class PointsTrackerService {
     private final String TEAM_DATA_URL = "https://raw.githubusercontent.com/urmenteangel/bootcampsolera/main/src/data/teamdata.json";
 
     @Autowired
-    private PointTrackerBot bot;
-
-    @PostConstruct
-    public void init() {
-        bot.setService(this);
-    }
+    PointTrackerBot bot;
 
     Gson gson = new Gson();
 
@@ -91,11 +84,11 @@ public class PointsTrackerService {
 
     private void sendCurrentWinnerMessage(ArrayList<SimpleEntry<Integer, String>> teams) {
         ArrayList<String> winningTeams = new ArrayList<>();
-
+        
         int maxPoints = teams.get(0).getKey().intValue();
 
-        for (SimpleEntry<Integer, String> team : teams) {
-            if (team.getKey() == maxPoints) {
+        for (SimpleEntry<Integer,String> team : teams) {
+            if(team.getKey() == maxPoints){
                 winningTeams.add(team.getValue());
             } else {
                 break;
@@ -122,9 +115,9 @@ public class PointsTrackerService {
         bot.sendWinnerMessage(message);
     }
 
-    private ArrayList<SimpleEntry<Integer, String>> getScoreboard(JsonArray jsonT) {
+    private ArrayList<SimpleEntry<Integer, String>> getScoreboard(JsonArray jsonT){
         ArrayList<SimpleEntry<Integer, String>> orderedTeams = new ArrayList<>();
-
+        
         for (JsonElement team : jsonT) {
             JsonArray activities = team.getAsJsonObject().getAsJsonArray("actividades");
             String teamName = team.getAsJsonObject().get("name").getAsString();
@@ -138,16 +131,15 @@ public class PointsTrackerService {
         return orderedTeams;
     }
 
-    public String getScoreboardMessage() {
+    public String getScoreboardMessage(){
 
         JsonArray jsonTeams = readJson(TEAM_DATA_LOCATION);
         ArrayList<SimpleEntry<Integer, String>> teams = getScoreboard(jsonTeams);
 
         String message = "Esta es la clasificación actual: \n";
 
-        for (SimpleEntry<Integer, String> team : teams) {
-            message += "\n" + "<span style=\"float: left;\">" + (teams.indexOf(team) + 1) + "º: " + team.getValue()
-                    + "</span><span style=\"float: right;\">" + team.getKey().intValue() + " puntos.</span>";
+        for (SimpleEntry<Integer,String> team : teams) {
+            message += "\n" + teams.indexOf(team) + "º: " + team.getValue() + ". Puntos: " + team.getKey().intValue();
         }
 
         return message;
