@@ -1,11 +1,14 @@
 package com.SoleraBootcamp4.PointsTrackerBot.service;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
+import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.PullCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -26,9 +29,12 @@ public class PointsTrackerService {
 
     private final String LOCAL_REPO_PATH = "res/localRepo";
     private final String TEAM_DATA_LOCATION = "src/data/teamdata.json";
+    private final String TDATA_LOCATION = "res/teamdata.json";
     private final String MAIN_REF = "refs/heads/main";
     private final String GIT_REMOTE = "https://github.com/urmenteangel/bootcampsolera";
-    //private final String SOLERA_GIT_REMOTE = "https://github.com/danibanez/bootcampsolera";
+    private final String TEAM_DATA_URL = "https://raw.githubusercontent.com/urmenteangel/bootcampsolera/main/src/data/teamdata.json";
+    // private final String SOLERA_GIT_REMOTE =
+    // "https://github.com/danibanez/bootcampsolera";
 
     @Autowired
     PointTrackerBot bot;
@@ -39,19 +45,20 @@ public class PointsTrackerService {
     public void pullTeamData(String payload) {
         if (isTeamDataModified(payload)) {
             try {
-                Git repo = getRepo(LOCAL_REPO_PATH);
+                FileUtils.copyURLToFile(new URL(TEAM_DATA_URL), new File(TDATA_LOCATION));
+                /* Git repo = getRepo(LOCAL_REPO_PATH);
                 PullCommand pull = repo.pull();
-                pull.call();
-                readJson(LOCAL_REPO_PATH + "/" + TEAM_DATA_LOCATION);
-            } catch (InvalidRemoteException e) {
+                pull.call() */;
+                readJson(TDATA_LOCATION);
+            } /* catch (InvalidRemoteException e) {
                 e.printStackTrace();
-            } catch (IOException e) {
+            } */ catch (IOException e) {
                 e.printStackTrace();
-            } catch (GitAPIException e) {
+            }/*  catch (GitAPIException e) {
                 e.printStackTrace();
             } catch (URISyntaxException e) {
                 e.printStackTrace();
-            }
+            } */
         }
     }
 
@@ -83,20 +90,20 @@ public class PointsTrackerService {
         JsonObject json = gson.fromJson(payload,
                 JsonObject.class);
         String ref = json.get("ref").getAsString();
-        if(ref.equals(MAIN_REF)){
+        if (ref.equals(MAIN_REF)) {
             JsonObject headCommit = json.getAsJsonObject("head_commit");
-        // If the value is an Array[], it is parsed as ArrayList
-        JsonArray modifiedFiles = headCommit.getAsJsonArray("modified");
-        for (JsonElement fileName : modifiedFiles) {
-            if (fileName.getAsString().equals(TEAM_DATA_LOCATION)) {
-                return true;
+            // If the value is an Array[], it is parsed as ArrayList
+            JsonArray modifiedFiles = headCommit.getAsJsonArray("modified");
+            for (JsonElement fileName : modifiedFiles) {
+                if (fileName.getAsString().equals(TEAM_DATA_LOCATION)) {
+                    return true;
+                }
             }
-        }
         }
         return false;
     }
 
-    private Git getRepo(String LOCAL_REPO_PATH)
+    /* private Git getRepo(String LOCAL_REPO_PATH)
             throws IOException, GitAPIException, URISyntaxException {
         Git repo;
         // We try to get our local repository. If it doesn't exist yet, we create it.
@@ -106,7 +113,7 @@ public class PointsTrackerService {
             repo = Git.cloneRepository().setURI(GIT_REMOTE).setDirectory(Paths.get(LOCAL_REPO_PATH).toFile()).call();
         }
         return repo;
-    }
+    } */
 
     public void getCurrentWinner(JsonArray teams) {
         ArrayList<String> winningTeams = new ArrayList<>();
