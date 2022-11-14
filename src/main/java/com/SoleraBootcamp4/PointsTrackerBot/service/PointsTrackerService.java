@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.AbstractMap.SimpleEntry;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.logging.log4j.message.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.google.gson.stream.JsonReader;
