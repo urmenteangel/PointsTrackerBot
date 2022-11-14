@@ -12,7 +12,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 @Service
 public class PointTrackerBot extends TelegramLongPollingBot {
 
-    //private final String BOT_TOKEN = "5695148086:AAE7pjMrbPxzVd66qAEr3ir2kxNbb3MjkNw";
+    private final String BOT_TOKEN = "5695148086:AAE7pjMrbPxzVd66qAEr3ir2kxNbb3MjkNw";
     private final String groupId = "-1001722891281";
     private final String soleraGroupId = "-1001561970415";
 
@@ -51,8 +51,7 @@ public class PointTrackerBot extends TelegramLongPollingBot {
 
     @Override
     public String getBotToken() {
-        Map<String,String> env = System.getenv();
-        return env.get("BOT_TOKEN");
+        return BOT_TOKEN;
     }
 
     @Override
