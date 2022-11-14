@@ -2,18 +2,16 @@ package com.SoleraBootcamp4.PointsTrackerBot.service;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.NavigableMap;
+import java.util.TreeMap;
+import java.util.Map.Entry;
 
 import org.apache.commons.io.FileUtils;
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.PullCommand;
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.api.errors.InvalidRemoteException;
-import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.google.gson.stream.JsonReader;
@@ -27,14 +25,9 @@ import com.google.gson.JsonSyntaxException;
 @Service
 public class PointsTrackerService {
 
-    private final String LOCAL_REPO_PATH = "res/localRepo";
-    private final String TEAM_DATA_LOCATION = "src/data/teamdata.json";
-    private final String TDATA_LOCATION = "res/teamdata.json";
+    private final String TEAM_DATA_LOCATION = "res/teamdata.json";
     private final String MAIN_REF = "refs/heads/main";
-    private final String GIT_REMOTE = "https://github.com/urmenteangel/bootcampsolera";
     private final String TEAM_DATA_URL = "https://raw.githubusercontent.com/urmenteangel/bootcampsolera/main/src/data/teamdata.json";
-    // private final String SOLERA_GIT_REMOTE =
-    // "https://github.com/danibanez/bootcampsolera";
 
     @Autowired
     PointTrackerBot bot;
@@ -45,28 +38,16 @@ public class PointsTrackerService {
     public void pullTeamData(String payload) {
         if (isTeamDataModified(payload)) {
             try {
-                FileUtils.copyURLToFile(new URL(TEAM_DATA_URL), new File(TDATA_LOCATION));
-                /* Git repo = getRepo(LOCAL_REPO_PATH);
-                PullCommand pull = repo.pull();
-                pull.call() */;
-                readJson(TDATA_LOCATION);
-            } /* catch (InvalidRemoteException e) {
+                FileUtils.copyURLToFile(new URL(TEAM_DATA_URL), new File(TEAM_DATA_LOCATION));
+                readJson(TEAM_DATA_LOCATION);
+            } catch (IOException e) {
                 e.printStackTrace();
-            } */ catch (IOException e) {
-                e.printStackTrace();
-            }/*  catch (GitAPIException e) {
-                e.printStackTrace();
-            } catch (URISyntaxException e) {
-                e.printStackTrace();
-            } */
+            }
         }
     }
 
-    private String readJson(String path) {
+    private JsonArray readJson(String path) {
 
-        /*
-         * 1.- Leer el json con JsonElement jsonElement = new JsonParser().parse(path);
-         */
         JsonElement jsonElement;
         try {
             jsonElement = gson.fromJson(new JsonReader(Files.newBufferedReader(Paths.get(path))),
@@ -82,7 +63,7 @@ public class PointsTrackerService {
             e.printStackTrace();
         }
 
-        return "";
+        return teams;
 
     }
 
@@ -103,33 +84,21 @@ public class PointsTrackerService {
         return false;
     }
 
-    /* private Git getRepo(String LOCAL_REPO_PATH)
-            throws IOException, GitAPIException, URISyntaxException {
-        Git repo;
-        // We try to get our local repository. If it doesn't exist yet, we create it.
-        try {
-            repo = Git.open(Paths.get(LOCAL_REPO_PATH).toFile());
-        } catch (RepositoryNotFoundException ex) {
-            repo = Git.cloneRepository().setURI(GIT_REMOTE).setDirectory(Paths.get(LOCAL_REPO_PATH).toFile()).call();
-        }
-        return repo;
-    } */
-
-    public void getCurrentWinner(JsonArray teams) {
+    private void getCurrentWinner(JsonArray teams) {
         ArrayList<String> winningTeams = new ArrayList<>();
-        int maxPoints = 0;
-        for (JsonElement team : teams) {
-            JsonArray activities = team.getAsJsonObject().getAsJsonArray("actividades");
-            int teamPoints = 0;
-            for (JsonElement activity : activities) {
-                teamPoints += activity.getAsJsonObject().get("puntos").getAsInt();
-            }
-            if (teamPoints > maxPoints) {
-                maxPoints = teamPoints;
-                winningTeams.clear();
-                winningTeams.add(team.getAsJsonObject().get("name").getAsString());
-            } else if (teamPoints == maxPoints) {
-                winningTeams.add(team.getAsJsonObject().get("name").getAsString());
+        
+        NavigableMap<Integer, String> orderedTeams = getScoreboard(teams);
+
+        Entry<Integer, String> winningTeam = orderedTeams.pollFirstEntry();
+        int maxPoints = winningTeam.getKey();
+        winningTeams.add(winningTeam.getValue());
+
+        if(!orderedTeams.isEmpty()){
+            Entry<Integer, String> nextTeam = orderedTeams.pollFirstEntry();
+            if(nextTeam.getKey().intValue() == maxPoints){
+                winningTeams.add(nextTeam.getValue());
+            } if (nextTeam.getKey().intValue() < maxPoints){
+                orderedTeams.clear();
             }
         }
 
@@ -151,6 +120,21 @@ public class PointsTrackerService {
         }
 
         bot.sendWinnerMessage(message);
+    }
+
+    private NavigableMap<Integer, String> getScoreboard(JsonArray teams){
+        TreeMap<Integer, String> unorderedTeams = new TreeMap<>();
+        
+        for (JsonElement team : teams) {
+            JsonArray activities = team.getAsJsonObject().getAsJsonArray("actividades");
+            String teamName = team.getAsJsonObject().get("name").getAsString();
+            int teamPoints = 0;
+            for (JsonElement activity : activities) {
+                teamPoints += activity.getAsJsonObject().get("puntos").getAsInt();
+            }
+            unorderedTeams.put(Integer.valueOf(teamPoints), teamName);
+        }
+        return unorderedTeams.descendingMap();
     }
 
 }
