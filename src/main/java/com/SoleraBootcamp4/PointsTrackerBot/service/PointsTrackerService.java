@@ -91,11 +91,11 @@ public class PointsTrackerService {
 
     private void sendCurrentWinnerMessage(ArrayList<SimpleEntry<Integer, String>> teams) {
         ArrayList<String> winningTeams = new ArrayList<>();
-        
+
         int maxPoints = teams.get(0).getKey().intValue();
 
-        for (SimpleEntry<Integer,String> team : teams) {
-            if(team.getKey() == maxPoints){
+        for (SimpleEntry<Integer, String> team : teams) {
+            if (team.getKey() == maxPoints) {
                 winningTeams.add(team.getValue());
             } else {
                 break;
@@ -122,9 +122,9 @@ public class PointsTrackerService {
         bot.sendWinnerMessage(message);
     }
 
-    private ArrayList<SimpleEntry<Integer, String>> getScoreboard(JsonArray jsonT){
+    private ArrayList<SimpleEntry<Integer, String>> getScoreboard(JsonArray jsonT) {
         ArrayList<SimpleEntry<Integer, String>> orderedTeams = new ArrayList<>();
-        
+
         for (JsonElement team : jsonT) {
             JsonArray activities = team.getAsJsonObject().getAsJsonArray("actividades");
             String teamName = team.getAsJsonObject().get("name").getAsString();
@@ -138,21 +138,16 @@ public class PointsTrackerService {
         return orderedTeams;
     }
 
-    public String getScoreboardMessage(){
+    public String getScoreboardMessage() {
 
         JsonArray jsonTeams = readJson(TEAM_DATA_LOCATION);
         ArrayList<SimpleEntry<Integer, String>> teams = getScoreboard(jsonTeams);
 
         String message = "Esta es la clasificación actual: \n";
 
-        int longestName = 18;
-
-        for (SimpleEntry<Integer,String> team : teams) {
-            message += "\n" + (teams.indexOf(team) + 1) + "º: " + team.getValue();
-            for(int i = 0; i < (longestName - team.getValue().length()); i++){
-                message += " ";
-            }
-            message += team.getKey().intValue() + " puntos.";
+        for (SimpleEntry<Integer, String> team : teams) {
+            message += "\n" + "<span style=\"float: left;\">" + (teams.indexOf(team) + 1) + "º: " + team.getValue()
+                    + "</span><span style=\"float: right;\">" + team.getKey().intValue() + " puntos.</span>";
         }
 
         return message;
