@@ -145,8 +145,14 @@ public class PointsTrackerService {
 
         String message = "Esta es la clasificación actual: \n";
 
+        int longestName = 20;
+
         for (SimpleEntry<Integer,String> team : teams) {
-            message += "\n" + (teams.indexOf(team) + 1) + "º: " + team.getValue() + "`t" + team.getKey().intValue() + " puntos.";
+            message += "\n" + (teams.indexOf(team) + 1) + "º: " + team.getValue();
+            for(int i = 0; i < (longestName - team.getValue().length()); i++){
+                message += "_";
+            }
+            message += team.getKey().intValue() + " puntos.";
         }
 
         return message;
