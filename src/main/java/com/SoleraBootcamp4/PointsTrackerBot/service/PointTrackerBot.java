@@ -12,7 +12,7 @@ public class PointTrackerBot extends TelegramLongPollingBot {
 
     private final String BOT_TOKEN = "5695148086:AAE7pjMrbPxzVd66qAEr3ir2kxNbb3MjkNw";
     private final String groupId = "-1001722891281";
-    private final String soleraGroupId = "-1001561970415";
+    //private final String soleraGroupId = "-1001561970415";
 
     @Override
     public void onUpdateReceived(Update update) {

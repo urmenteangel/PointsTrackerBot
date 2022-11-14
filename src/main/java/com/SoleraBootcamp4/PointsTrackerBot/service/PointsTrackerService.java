@@ -28,7 +28,7 @@ public class PointsTrackerService {
     private final String TEAM_DATA_LOCATION = "src/data/teamdata.json";
     private final String MAIN_REF = "refs/heads/main";
     private final String GIT_REMOTE = "https://github.com/urmenteangel/bootcampsolera";
-    private final String SOLERA_GIT_REMOTE = "https://github.com/danibanez/bootcampsolera";
+    //private final String SOLERA_GIT_REMOTE = "https://github.com/danibanez/bootcampsolera";
 
     @Autowired
     PointTrackerBot bot;
