@@ -8,6 +8,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.AbstractMap.SimpleEntry;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.message.Message;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +30,12 @@ public class PointsTrackerService {
     private final String TEAM_DATA_URL = "https://raw.githubusercontent.com/urmenteangel/bootcampsolera/main/src/data/teamdata.json";
 
     @Autowired
-    PointTrackerBot bot;
+    private PointTrackerBot bot;
+
+    @PostConstruct
+    public void init() {
+        bot.setService(this);
+    }
 
     Gson gson = new Gson();
 

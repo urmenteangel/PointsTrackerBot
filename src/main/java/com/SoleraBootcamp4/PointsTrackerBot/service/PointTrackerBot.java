@@ -11,11 +11,14 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 @Service
 public class PointTrackerBot extends TelegramLongPollingBot {
 
-    @Autowired
-    PointsTrackerService pointsTrackerService;
+    private PointsTrackerService pointsTrackerService;
 
     private final String groupId = "-1001722891281";
     //private final String soleraGroupId = "-1001561970415";
+
+    public void setService(PointsTrackerService pointsTrackerService) {
+        this.pointsTrackerService = pointsTrackerService;
+    }
 
     @Override
     public void onUpdateReceived(Update update) {
