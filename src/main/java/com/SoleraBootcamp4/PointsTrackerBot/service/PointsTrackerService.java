@@ -153,7 +153,7 @@ public class PointsTrackerService {
                             + teamName.substring(i + 2);
                 }
             }
-            message += "\n" + teams.indexOf(team) + "º: " + teamName + ": " + team.getKey().intValue() + " puntos.";
+            message += "\n" + (teams.indexOf(team) + 1) + "º: " + teamName + ": " + team.getKey().intValue() + " puntos.";
         }
 
         return message;
