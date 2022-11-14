@@ -6,12 +6,10 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.NavigableMap;
-import java.util.TreeMap;
-import java.util.Map.Entry;
+import java.util.AbstractMap.SimpleEntry;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.message.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.google.gson.stream.JsonReader;
@@ -33,13 +31,14 @@ public class PointsTrackerService {
     PointTrackerBot bot;
 
     Gson gson = new Gson();
-    private JsonArray teams;
 
     public void pullTeamData(String payload) {
         if (isTeamDataModified(payload)) {
             try {
                 FileUtils.copyURLToFile(new URL(TEAM_DATA_URL), new File(TEAM_DATA_LOCATION));
-                readJson(TEAM_DATA_LOCATION);
+                JsonArray jsonTeams = readJson(TEAM_DATA_LOCATION);
+                ArrayList<SimpleEntry<Integer, String>> scoreboard = getScoreboard(jsonTeams);
+                sendCurrentWinnerMessage(scoreboard);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -48,13 +47,12 @@ public class PointsTrackerService {
 
     private JsonArray readJson(String path) {
 
-        JsonElement jsonElement;
+        JsonArray jsonTeams = new JsonArray();
         try {
-            jsonElement = gson.fromJson(new JsonReader(Files.newBufferedReader(Paths.get(path))),
+            JsonElement jsonElement = gson.fromJson(new JsonReader(Files.newBufferedReader(Paths.get(path))),
                     JsonElement.class);
             JsonObject jsonObject = jsonElement.getAsJsonObject();
-            teams = jsonObject.getAsJsonArray("teamdata");
-            getCurrentWinner(teams);
+            jsonTeams = jsonObject.getAsJsonArray("teamdata");
         } catch (JsonIOException e) {
             e.printStackTrace();
         } catch (JsonSyntaxException e) {
@@ -63,7 +61,7 @@ public class PointsTrackerService {
             e.printStackTrace();
         }
 
-        return teams;
+        return jsonTeams;
 
     }
 
@@ -84,21 +82,16 @@ public class PointsTrackerService {
         return false;
     }
 
-    private void getCurrentWinner(JsonArray teams) {
+    private void sendCurrentWinnerMessage(ArrayList<SimpleEntry<Integer, String>> teams) {
         ArrayList<String> winningTeams = new ArrayList<>();
         
-        NavigableMap<Integer, String> orderedTeams = getScoreboard(teams);
+        int maxPoints = teams.get(0).getKey().intValue();
 
-        Entry<Integer, String> winningTeam = orderedTeams.pollFirstEntry();
-        int maxPoints = winningTeam.getKey();
-        winningTeams.add(winningTeam.getValue());
-
-        if(!orderedTeams.isEmpty()){
-            Entry<Integer, String> nextTeam = orderedTeams.pollFirstEntry();
-            if(nextTeam.getKey().intValue() == maxPoints){
-                winningTeams.add(nextTeam.getValue());
-            } if (nextTeam.getKey().intValue() < maxPoints){
-                orderedTeams.clear();
+        for (SimpleEntry<Integer,String> team : teams) {
+            if(team.getKey() == maxPoints){
+                winningTeams.add(team.getValue());
+            } else {
+                break;
             }
         }
 
@@ -122,19 +115,34 @@ public class PointsTrackerService {
         bot.sendWinnerMessage(message);
     }
 
-    private NavigableMap<Integer, String> getScoreboard(JsonArray teams){
-        TreeMap<Integer, String> unorderedTeams = new TreeMap<>();
+    private ArrayList<SimpleEntry<Integer, String>> getScoreboard(JsonArray jsonT){
+        ArrayList<SimpleEntry<Integer, String>> orderedTeams = new ArrayList<>();
         
-        for (JsonElement team : teams) {
+        for (JsonElement team : jsonT) {
             JsonArray activities = team.getAsJsonObject().getAsJsonArray("actividades");
             String teamName = team.getAsJsonObject().get("name").getAsString();
             int teamPoints = 0;
             for (JsonElement activity : activities) {
                 teamPoints += activity.getAsJsonObject().get("puntos").getAsInt();
             }
-            unorderedTeams.put(Integer.valueOf(teamPoints), teamName);
+            orderedTeams.add(new SimpleEntry<>(Integer.valueOf(teamPoints), teamName));
         }
-        return unorderedTeams.descendingMap();
+        orderedTeams.sort((o1, o2) -> o2.getKey().compareTo(o1.getKey()));
+        return orderedTeams;
+    }
+
+    public String getScoreboardMessage(){
+
+        JsonArray jsonTeams = readJson(TEAM_DATA_LOCATION);
+        ArrayList<SimpleEntry<Integer, String>> teams = getScoreboard(jsonTeams);
+
+        String message = "Esta es la clasificación actual: \n";
+
+        for (SimpleEntry<Integer,String> team : teams) {
+            message += "\n" + teams.indexOf(team) + "º: " + team.getValue() + "\t" + team.getKey().intValue() + " puntos.";
+        }
+
+        return message;
     }
 
 }

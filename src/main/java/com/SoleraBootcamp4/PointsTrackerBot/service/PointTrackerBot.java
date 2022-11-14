@@ -1,5 +1,6 @@
 package com.SoleraBootcamp4.PointsTrackerBot.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -9,6 +10,9 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 @Service
 public class PointTrackerBot extends TelegramLongPollingBot {
+
+    @Autowired
+    PointsTrackerService pointsTrackerService;
 
     private final String groupId = "-1001722891281";
     //private final String soleraGroupId = "-1001561970415";
@@ -26,7 +30,7 @@ public class PointTrackerBot extends TelegramLongPollingBot {
                 if (receivedMessage.getText().equals("/scoreboard")
                         || receivedMessage.getText().equals("/scoreboard@" + getBotUsername())) {
                     // Generate scoreboard
-                    message.setText("Esta funcionalidad no está disponible.");
+                    message.setText(pointsTrackerService.getScoreboardMessage());
                     execute(message);
 
                 }
