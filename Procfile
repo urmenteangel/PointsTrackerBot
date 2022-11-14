@@ -1,1 +1,1 @@
-web: gunicorn PointsTrackerBotApplication:main
+web: PointsTrackerBotApplication:main
