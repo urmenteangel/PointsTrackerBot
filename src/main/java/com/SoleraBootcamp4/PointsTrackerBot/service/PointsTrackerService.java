@@ -146,7 +146,7 @@ public class PointsTrackerService {
         String message = "Esta es la clasificación actual: \n";
 
         for (SimpleEntry<Integer,String> team : teams) {
-            message += "\n" + teams.indexOf(team) + "º: " + team.getValue() + "\t" + team.getKey().intValue() + " puntos.";
+            message += "\n" + (teams.indexOf(team) + 1) + "º: " + team.getValue() + "`t" + team.getKey().intValue() + " puntos.";
         }
 
         return message;
