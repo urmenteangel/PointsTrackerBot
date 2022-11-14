@@ -76,7 +76,7 @@ public class PointsTrackerService {
             // If the value is an Array[], it is parsed as ArrayList
             JsonArray modifiedFiles = headCommit.getAsJsonArray("modified");
             for (JsonElement fileName : modifiedFiles) {
-                if (fileName.getAsString().equals(TEAM_DATA_LOCATION)) {
+                if (fileName.getAsString().equals("src/data/teamdata.json")) {
                     return true;
                 }
             }
