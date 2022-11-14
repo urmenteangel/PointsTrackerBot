@@ -12,7 +12,7 @@
 	<groupId>com.SoleraBootcamp4</groupId>
 	<artifactId>PointsTrackerBot</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<name>PointsTrackerBot</name>
 	<description>Telegram Bot</description>
 	<properties>
