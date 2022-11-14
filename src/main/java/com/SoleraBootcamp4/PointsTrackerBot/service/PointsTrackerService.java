@@ -90,11 +90,11 @@ public class PointsTrackerService {
 
     private void sendCurrentWinnerMessage(ArrayList<SimpleEntry<Integer, String>> teams) {
         ArrayList<String> winningTeams = new ArrayList<>();
-        
+
         int maxPoints = teams.get(0).getKey().intValue();
 
-        for (SimpleEntry<Integer,String> team : teams) {
-            if(team.getKey() == maxPoints){
+        for (SimpleEntry<Integer, String> team : teams) {
+            if (team.getKey() == maxPoints) {
                 winningTeams.add(team.getValue());
             } else {
                 break;
@@ -121,9 +121,9 @@ public class PointsTrackerService {
         bot.sendWinnerMessage(message);
     }
 
-    private ArrayList<SimpleEntry<Integer, String>> getScoreboard(JsonArray jsonT){
+    private ArrayList<SimpleEntry<Integer, String>> getScoreboard(JsonArray jsonT) {
         ArrayList<SimpleEntry<Integer, String>> orderedTeams = new ArrayList<>();
-        
+
         for (JsonElement team : jsonT) {
             JsonArray activities = team.getAsJsonObject().getAsJsonArray("actividades");
             String teamName = team.getAsJsonObject().get("name").getAsString();
@@ -137,15 +137,23 @@ public class PointsTrackerService {
         return orderedTeams;
     }
 
-    public String getScoreboardMessage(){
+    public String getScoreboardMessage() {
 
         JsonArray jsonTeams = readJson(TEAM_DATA_LOCATION);
         ArrayList<SimpleEntry<Integer, String>> teams = getScoreboard(jsonTeams);
 
         String message = "Esta es la clasificación actual: \n";
 
-        for (SimpleEntry<Integer,String> team : teams) {
-            message += "\n" + teams.indexOf(team) + "º: " + team.getValue() + ". Puntos: " + team.getKey().intValue();
+        for (SimpleEntry<Integer, String> team : teams) {
+            String teamName = team.getValue().toLowerCase();
+            teamName = teamName.substring(0, 1).toUpperCase() + teamName.substring(1);
+            for (int i = 0; i < teamName.length(); i++) {
+                if (teamName.charAt(i) == ' ') {
+                    teamName = teamName.substring(0, i + 1) + teamName.substring(i + 1, i + 2).toUpperCase()
+                            + teamName.substring(i + 2);
+                }
+            }
+            message += "\n" + teams.indexOf(team) + "º: " + teamName + ". Puntos: " + team.getKey().intValue();
         }
 
         return message;
