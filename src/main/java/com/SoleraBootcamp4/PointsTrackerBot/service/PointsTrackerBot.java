@@ -1,16 +1,23 @@
 package com.SoleraBootcamp4.PointsTrackerBot.service;
 
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.bots.DefaultAbsSender;
+import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.bots.TelegramWebhookBot;
-import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.meta.generics.TelegramBot;
 
-@Service
-public class PointTrackerBot extends TelegramWebhookBot {
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
+@Component
+public class PointsTrackerBot {
+
+    private Gson gson = new Gson();
 
     private PointsTrackerService pointsTrackerService;
 
@@ -22,29 +29,12 @@ public class PointTrackerBot extends TelegramWebhookBot {
     }
 
     public void sendWinnerMessage(String winnerMessage) {
-        SendMessage message = new SendMessage();
-        message.setChatId(groupId);
-        message.setText(winnerMessage);
-        try {
-            execute(message);
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
+
     }
 
-    @Override
-    public String getBotToken() {
-        return System.getenv("BOT_TOKEN");
-    }
+    private void sendScoreboardMessage(JsonObject update) {
 
-    @Override
-    public String getBotUsername() {
-        return "PointsTrackerBot";
-    }
-
-    @Override
-    public BotApiMethod<?> onWebhookUpdateReceived(Update update) {
-        Message receivedMessage = update.getMessage();
+        /* Message receivedMessage = update.getMessage();
         String chatId = receivedMessage.getChatId().toString();
 
         SendMessage message = new SendMessage();
@@ -64,13 +54,18 @@ public class PointTrackerBot extends TelegramWebhookBot {
             message.setText("Sorry " + receivedMessage.getFrom().getFirstName()
                     + " " + lastName + ", this bot only works in groups.");
         }
-
-        return message;
+        execute(message); */
     }
 
-    @Override
-    public String getBotPath() {
-        return "https://pointstrackerbot.herokuapp.com/PointsTracker/telegram_payload";
+    public String getBotToken() {
+        return System.getenv("BOT_TOKEN");
+    }
+
+    public String getBotUsername() {
+        return "PointsTrackerBot";
+    }
+
+    public void payloadToJson(String payload) {
     }
 
 }

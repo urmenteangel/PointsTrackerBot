@@ -30,7 +30,7 @@ public class PointsTrackerService {
     private final String TEAM_DATA_URL = System.getenv("TEAM_DATA_URL");
 
     @Autowired
-    PointTrackerBot bot;
+    PointsTrackerBot bot;
 
     @PostConstruct
     public void init() {
