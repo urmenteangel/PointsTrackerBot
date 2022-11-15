@@ -149,7 +149,7 @@ public class PointsTrackerService {
         return winningTeams;
     }
 
-    public String getWinnerMessage() {
+    private String getWinnerMessage() {
 
         JsonArray jsonTeams = readJson(LOCAL_TEAM_DATA_LOCATION);
         ArrayList<SimpleEntry<Integer, String>> teams = getScoreboard(jsonTeams);
