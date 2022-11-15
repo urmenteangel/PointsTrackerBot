@@ -197,7 +197,7 @@ public class PointsTrackerService {
 
         System.out.println(payload);
 
-        JsonObject messageJson = gson.fromJson(payload, JsonObject.class);
+        JsonObject messageJson = gson.fromJson(payload, JsonObject.class).get("message").getAsJsonObject();
         JsonObject senderJson = messageJson.get("from").getAsJsonObject();
         JsonObject chatJson = messageJson.get("chat").getAsJsonObject();
 
