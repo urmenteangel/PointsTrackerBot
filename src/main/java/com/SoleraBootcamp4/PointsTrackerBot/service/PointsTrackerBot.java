@@ -57,7 +57,7 @@ public class PointsTrackerBot {
         json.addProperty("chat_id", chatId);
         json.addProperty("text", message);
 
-        System.out.println(json.getAsString());
+        System.out.println(json.toString());
 
         /* try {
             URL url = new URL(baseUrl + "sendMessage");
