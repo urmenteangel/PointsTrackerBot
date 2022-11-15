@@ -1,18 +1,22 @@
 package com.SoleraBootcamp4.PointsTrackerBot.service;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.springframework.stereotype.Service;
 
 import com.SoleraBootcamp4.PointsTrackerBot.model.MessageChat;
 import com.SoleraBootcamp4.PointsTrackerBot.model.TelegramMessage;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
 @Service
@@ -63,27 +67,23 @@ public class PointsTrackerBot {
         String jsonStringified = json.toString();
 
         try {
-            URL url = new URL(baseUrl + "sendMessage");
-            HttpURLConnection con = (HttpURLConnection) url.openConnection();
-            con.setRequestMethod("POST");
-            con.setRequestProperty("Content-Type", "application/json");
-            con.setDoOutput(true);
+            String urlString = baseUrl + "sendmessage";
+            HttpPost httpPost = new HttpPost(urlString);
+            httpPost.addHeader("Content-type", "application/x-www-form-urlencoded");
+            httpPost.addHeader("charset", "UTF-8");
 
-            try (OutputStream os = con.getOutputStream()) {
-                byte[] input = jsonStringified.getBytes("utf-8");
-                os.write(input, 0, input.length);
-            }
+            /// Create list of parameters
+            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+            /// Add chatid to the list
+            nameValuePairs.add(new BasicNameValuePair("chat_id", chatId + ""));
+            /// Add text to the list
+            nameValuePairs.add(new BasicNameValuePair("text", text));
 
-            try (BufferedReader br = new BufferedReader(
-                    new InputStreamReader(con.getInputStream(), "utf-8"))) {
-                StringBuilder response = new StringBuilder();
-                String responseLine = null;
-                while ((responseLine = br.readLine()) != null) {
-                    response.append(responseLine.trim());
-                }
-                System.out.println(response.toString());
-            }
-            con.disconnect();
+            httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
+
+            CloseableHttpClient client = HttpClients.createDefault();
+            HttpResponse response = client.execute(httpPost);
+            System.out.println(EntityUtils.toString(response.getEntity()));
 
         } catch (IOException e) {
             e.printStackTrace();
