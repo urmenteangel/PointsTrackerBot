@@ -28,13 +28,19 @@ public class PointTrackerBot extends TelegramLongPollingBot {
         try {
             SendMessage message = new SendMessage();
             message.setChatId(chatId);
-            if (chatId.equals(groupId)) {
-                if (receivedMessage.getText().equals("/scoreboard")
-                        || receivedMessage.getText().equals("/scoreboard@" + getBotUsername())) {
-                    message.setText(pointsTrackerService.getScoreboardMessage());
-                    execute(message);
+            if(receivedMessage.isGroupMessage()){
+                if (chatId.equals(groupId)) {
+                    if (receivedMessage.getText().equals("/scoreboard")
+                            || receivedMessage.getText().equals("/scoreboard@" + getBotUsername())) {
+                        message.setText(pointsTrackerService.getScoreboardMessage());
+                    }
+                } else {
+                    message.setText("Sorry, this bot only works in certain groups.");
                 }
+            } else {
+                message.setText("Sorry " + receivedMessage.getFrom().getUserName() +", this bot only works in groups.");
             }
+            execute(message);
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
