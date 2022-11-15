@@ -13,7 +13,7 @@ public class PointTrackerBot extends TelegramLongPollingBot {
     private PointsTrackerService pointsTrackerService;
 
     private final String groupId = "-1001722891281";
-    //private final String soleraGroupId = "-1001561970415";
+    // private final String soleraGroupId = "-1001561970415";
 
     public void setService(PointsTrackerService pointsTrackerService) {
         this.pointsTrackerService = pointsTrackerService;
@@ -31,25 +31,18 @@ public class PointTrackerBot extends TelegramLongPollingBot {
             if (chatId.equals(groupId)) {
                 if (receivedMessage.getText().equals("/scoreboard")
                         || receivedMessage.getText().equals("/scoreboard@" + getBotUsername())) {
-                    // Generate scoreboard
                     message.setText(pointsTrackerService.getScoreboardMessage());
                     execute(message);
-
+                } else if (receivedMessage.getText().equals("/winner")
+                        || receivedMessage.getText().equals("/winner@" + getBotUsername())) {
+                    message.setText(pointsTrackerService.getWinnerMessage());
+                    execute(message);
                 }
             }
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
 
-    }
-
-    public void sendWinnerMessage(String message) {
-        SendMessage sendMessage = new SendMessage(groupId, message);
-        try {
-            execute(sendMessage);
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override

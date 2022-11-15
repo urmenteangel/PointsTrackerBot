@@ -24,9 +24,10 @@ import com.google.gson.JsonSyntaxException;
 @Service
 public class PointsTrackerService {
 
-    private final String TEAM_DATA_LOCATION = "res/teamdata.json";
+    private final String LOCAL_TEAM_DATA_LOCATION = System.getenv("LOCAL_TEAM_DATA_LOCATION");
+    private final String REMOTE_TEAM_DATA_LOCATION = System.getenv("REMOTE_TEAM_DATA_LOCATION");
     private final String MAIN_REF = "refs/heads/main";
-    private final String TEAM_DATA_URL = "https://raw.githubusercontent.com/urmenteangel/bootcampsolera/main/src/data/teamdata.json";
+    private final String TEAM_DATA_URL = System.getenv("TEAM_DATA_URL");
 
     @Autowired
     PointTrackerBot bot;
@@ -41,10 +42,10 @@ public class PointsTrackerService {
     public void pullTeamData(String payload) {
         if (isTeamDataModified(payload)) {
             try {
-                FileUtils.copyURLToFile(new URL(TEAM_DATA_URL), new File(TEAM_DATA_LOCATION));
-                JsonArray jsonTeams = readJson(TEAM_DATA_LOCATION);
+                FileUtils.copyURLToFile(new URL(TEAM_DATA_URL), new File(LOCAL_TEAM_DATA_LOCATION));
+                JsonArray jsonTeams = readJson(LOCAL_TEAM_DATA_LOCATION);
                 ArrayList<SimpleEntry<Integer, String>> scoreboard = getScoreboard(jsonTeams);
-                sendCurrentWinnerMessage(scoreboard);
+                sendDataUpdatedMessage(scoreboard);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -80,7 +81,7 @@ public class PointsTrackerService {
             // If the value is an Array[], it is parsed as ArrayList
             JsonArray modifiedFiles = headCommit.getAsJsonArray("modified");
             for (JsonElement fileName : modifiedFiles) {
-                if (fileName.getAsString().equals("src/data/teamdata.json")) {
+                if (fileName.getAsString().equals(REMOTE_TEAM_DATA_LOCATION)) {
                     return true;
                 }
             }
@@ -88,39 +89,11 @@ public class PointsTrackerService {
         return false;
     }
 
-    private void sendCurrentWinnerMessage(ArrayList<SimpleEntry<Integer, String>> teams) {
-        ArrayList<String> winningTeams = new ArrayList<>();
-
-        int maxPoints = teams.get(0).getKey().intValue();
-
-        for (SimpleEntry<Integer, String> team : teams) {
-            if (team.getKey() == maxPoints) {
-                winningTeams.add(team.getValue());
-            } else {
-                break;
-            }
-        }
+    private void sendDataUpdatedMessage(ArrayList<SimpleEntry<Integer, String>> teams) {
 
         String message = "Se ha modificado la clasificación.\n\n";
 
-        if (winningTeams.size() > 1) {
-            message += "¡Hay empate a " + maxPoints + " puntos entre los equipos ";
-            for (int i = 0; i < winningTeams.size(); i++) {
-                if (i == winningTeams.size() - 1) {
-                    message += "y \"" + formatTeamName(winningTeams.get(i)) + "\"!";
-                } else if (i == winningTeams.size() - 2) {
-                    message += "\"" + formatTeamName(winningTeams.get(i)) + "\" ";
-                } else {
-                    message += "\"" + formatTeamName(winningTeams.get(i)) + "\", ";
-                }
-            }
-        } else {
-            message += "Va ganando el equipo \"" + formatTeamName(winningTeams.get(0)) + "\" con " + maxPoints + " puntos.";
-        }
-
-        message += "\n\nPara consultar la nueva clasificación completa, usa \"/scoreboard\".";
-
-        bot.sendWinnerMessage(message);
+        bot.sendWinnerMessage(getWinnerMessage(message));
     }
 
     private ArrayList<SimpleEntry<Integer, String>> getScoreboard(JsonArray jsonT) {
@@ -141,13 +114,13 @@ public class PointsTrackerService {
 
     public String getScoreboardMessage() {
 
-        JsonArray jsonTeams = readJson(TEAM_DATA_LOCATION);
+        JsonArray jsonTeams = readJson(LOCAL_TEAM_DATA_LOCATION);
         ArrayList<SimpleEntry<Integer, String>> teams = getScoreboard(jsonTeams);
 
         String message = "Esta es la clasificación actual: \n";
 
         for (SimpleEntry<Integer, String> team : teams) {
-            
+
             String teamName = formatTeamName(team.getValue());
             message += "\n" + (teams.indexOf(team) + 1) + "º: " + teamName + ": " + team.getKey().intValue()
                     + " puntos.";
@@ -156,13 +129,65 @@ public class PointsTrackerService {
         return message;
     }
 
+    private ArrayList<String> getWinningTeams(ArrayList<SimpleEntry<Integer, String>> teams) {
+
+        ArrayList<String> winningTeams = new ArrayList<>();
+
+        int maxPoints = teams.get(0).getKey().intValue();
+
+        for (SimpleEntry<Integer, String> team : teams) {
+            if (team.getKey() == maxPoints) {
+                winningTeams.add(team.getValue());
+            } else {
+                break;
+            }
+        }
+
+        return winningTeams;
+    }
+
+    private String getWinnerMessage(String startingMessage) {
+
+        JsonArray jsonTeams = readJson(LOCAL_TEAM_DATA_LOCATION);
+        ArrayList<SimpleEntry<Integer, String>> teams = getScoreboard(jsonTeams);
+
+        int maxPoints = teams.get(0).getKey();
+        ArrayList<String> winningTeams = getWinningTeams(teams);
+
+        if (winningTeams.size() > 1) {
+            startingMessage += "¡Hay empate a " + maxPoints + " puntos entre los equipos ";
+            for (int i = 0; i < winningTeams.size(); i++) {
+                if (i == winningTeams.size() - 1) {
+                    startingMessage += "y \"" + formatTeamName(winningTeams.get(i)) + "\"!";
+                } else if (i == winningTeams.size() - 2) {
+                    startingMessage += "\"" + formatTeamName(winningTeams.get(i)) + "\" ";
+                } else {
+                    startingMessage += "\"" + formatTeamName(winningTeams.get(i)) + "\", ";
+                }
+            }
+        } else {
+            startingMessage += "Va ganando el equipo \"" + formatTeamName(winningTeams.get(0)) + "\" con " + maxPoints
+                    + " puntos.";
+        }
+
+        startingMessage += "\n\nPara consultar la nueva clasificación completa, usa \"/scoreboard\".";
+
+        return startingMessage;
+    }
+
+    public String getWinnerMessage() {
+
+        return getWinnerMessage("");
+    }
+
     private String formatTeamName(String teamName) {
         String formatedTeamName = teamName.toLowerCase();
         for (int i = 0; i < formatedTeamName.length(); i++) {
             if (i == 0) {
                 formatedTeamName = formatedTeamName.substring(0, 1).toUpperCase() + formatedTeamName.substring(1);
             } else if (formatedTeamName.charAt(i) == ' ') {
-                formatedTeamName = formatedTeamName.substring(0, i + 1) + formatedTeamName.substring(i + 1, i + 2).toUpperCase()
+                formatedTeamName = formatedTeamName.substring(0, i + 1)
+                        + formatedTeamName.substring(i + 1, i + 2).toUpperCase()
                         + formatedTeamName.substring(i + 2);
             }
         }
