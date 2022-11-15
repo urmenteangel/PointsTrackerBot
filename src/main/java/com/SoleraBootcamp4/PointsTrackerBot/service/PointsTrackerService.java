@@ -107,15 +107,15 @@ public class PointsTrackerService {
             message += "¡Hay empate a " + maxPoints + " puntos entre los equipos ";
             for (int i = 0; i < winningTeams.size(); i++) {
                 if (i == winningTeams.size() - 1) {
-                    message += "y \"" + winningTeams.get(i) + "\"!";
+                    message += "y \"" + formatTeamName(winningTeams.get(i)) + "\"!";
                 } else if (i == winningTeams.size() - 2) {
-                    message += "\"" + winningTeams.get(i) + "\" ";
+                    message += "\"" + formatTeamName(winningTeams.get(i)) + "\" ";
                 } else {
-                    message += "\"" + winningTeams.get(i) + "\", ";
+                    message += "\"" + formatTeamName(winningTeams.get(i)) + "\", ";
                 }
             }
         } else {
-            message += "Va ganando el equipo \"" + winningTeams.get(0) + "\" con " + maxPoints + " puntos.";
+            message += "Va ganando el equipo \"" + formatTeamName(winningTeams.get(0)) + "\" con " + maxPoints + " puntos.";
         }
 
         bot.sendWinnerMessage(message);
@@ -145,18 +145,25 @@ public class PointsTrackerService {
         String message = "Esta es la clasificación actual: \n";
 
         for (SimpleEntry<Integer, String> team : teams) {
-            String teamName = team.getValue().toLowerCase();
-            teamName = teamName.substring(0, 1).toUpperCase() + teamName.substring(1);
-            for (int i = 0; i < teamName.length(); i++) {
-                if (teamName.charAt(i) == ' ') {
-                    teamName = teamName.substring(0, i + 1) + teamName.substring(i + 1, i + 2).toUpperCase()
-                            + teamName.substring(i + 2);
-                }
-            }
-            message += "\n" + (teams.indexOf(team) + 1) + "º: " + teamName + ": " + team.getKey().intValue() + " puntos.";
+            
+            String teamName = formatTeamName(team.getValue());
+            message += "\n" + (teams.indexOf(team) + 1) + "º: " + teamName + ": " + team.getKey().intValue()
+                    + " puntos.";
         }
 
         return message;
+    }
+
+    private String formatTeamName(String teamName) {
+        for (int i = 0; i < teamName.length(); i++) {
+            if (i == 0) {
+                teamName = teamName.substring(0, 1).toUpperCase() + teamName.substring(1);
+            } else if (teamName.charAt(i) == ' ') {
+                teamName = teamName.substring(0, i + 1) + teamName.substring(i + 1, i + 2).toUpperCase()
+                        + teamName.substring(i + 2);
+            }
+        }
+        return teamName;
     }
 
 }
