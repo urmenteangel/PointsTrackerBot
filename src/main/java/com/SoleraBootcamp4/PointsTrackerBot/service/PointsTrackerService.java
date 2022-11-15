@@ -118,7 +118,7 @@ public class PointsTrackerService {
             message += "Va ganando el equipo \"" + formatTeamName(winningTeams.get(0)) + "\" con " + maxPoints + " puntos.";
         }
 
-        message += "\nPara consultar la nueva clasificación completa, usa el comando \"/scoreboard\".";
+        message += "\n\nPara consultar la nueva clasificación completa, usa \"/scoreboard\".";
 
         bot.sendWinnerMessage(message);
     }
