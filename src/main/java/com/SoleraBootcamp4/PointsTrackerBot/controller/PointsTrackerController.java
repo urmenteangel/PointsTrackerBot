@@ -11,16 +11,21 @@ import org.springframework.web.bind.annotation.RestController;
 import com.SoleraBootcamp4.PointsTrackerBot.service.PointsTrackerService;
 
 @RestController
-@RequestMapping("/api/v1.0")
+@RequestMapping("/PointsTracker")
 public class PointsTrackerController {
 
     @Autowired
     PointsTrackerService service;
 
-    @PostMapping("/PointsTracker")
+    @PostMapping("/github_payload/")
     @ResponseStatus(HttpStatus.OK)
-    public void getPayload(@RequestBody String payload){
+    public void getGitHubPayload(@RequestBody String payload){
         service.pullTeamData(payload);
+    }
+    @PostMapping("/telegram_payload/")
+    @ResponseStatus(HttpStatus.OK)
+    public void getTelegramPayload(@RequestBody String payload){
+        //service.pullTeamData(payload);
     }
 
     
