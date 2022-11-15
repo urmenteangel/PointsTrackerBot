@@ -14,6 +14,9 @@ import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.google.gson.stream.JsonReader;
+import com.SoleraBootcamp4.PointsTrackerBot.model.MessageChat;
+import com.SoleraBootcamp4.PointsTrackerBot.model.MessageSender;
+import com.SoleraBootcamp4.PointsTrackerBot.model.TelegramMessage;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -188,6 +191,36 @@ public class PointsTrackerService {
         }
 
         return message;
+    }
+
+    public void payloadToTelegramMessage(String payload) {
+        JsonObject messageJson = gson.fromJson(payload, JsonObject.class);
+        JsonObject senderJson = messageJson.getAsJsonObject("from");
+        JsonObject chatJson = messageJson.getAsJsonObject("chat");
+
+        String senderId = senderJson.get("id").getAsString();
+        boolean isBot = senderJson.get("is_bot").getAsBoolean();
+        String firstName = senderJson.get("first_name").getAsString();
+
+        JsonElement lastNameElement = senderJson.get("last_name");
+        String lastName = lastNameElement != null ? lastNameElement.getAsString() : "";
+
+        JsonElement usernameElement = senderJson.get("username");
+        String username = usernameElement != null ? usernameElement.getAsString() : "";
+
+        String chatId = chatJson.get("id").getAsString();
+        String title = chatJson.get("title").getAsString();
+
+        String typeElement = chatJson.get("type").getAsString();
+        boolean type = (typeElement.equals("supergroup") || typeElement.equals("group")) ? true : false;
+
+        MessageSender sender = new MessageSender(senderId, isBot, firstName, lastName, username);
+        MessageChat chat = new MessageChat(chatId, title, type);
+
+        String text = messageJson.get("text").getAsString();
+
+        TelegramMessage message = new TelegramMessage(sender, chat, text);
+        bot.sendScoreboardMessage(message);
     }
 
 }

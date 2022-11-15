@@ -1,26 +1,25 @@
 package com.SoleraBootcamp4.PointsTrackerBot.service;
 
-import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.bots.DefaultAbsSender;
-import org.telegram.telegrambots.bots.DefaultBotOptions;
-import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.bots.TelegramWebhookBot;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import org.telegram.telegrambots.meta.generics.TelegramBot;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
+import org.springframework.stereotype.Service;
+
+import com.SoleraBootcamp4.PointsTrackerBot.model.MessageChat;
+import com.SoleraBootcamp4.PointsTrackerBot.model.TelegramMessage;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
-@Component
+@Service
 public class PointsTrackerBot {
 
     private Gson gson = new Gson();
 
     private PointsTrackerService pointsTrackerService;
 
+    private final String baseUrl = "https://api.telegram.org/bot" + getBotToken() + "/";
     private final String groupId = "-1001722891281";
     // private final String soleraGroupId = "-1001561970415";
 
@@ -29,32 +28,46 @@ public class PointsTrackerBot {
     }
 
     public void sendWinnerMessage(String winnerMessage) {
-
+        String message = "";
     }
 
-    private void sendScoreboardMessage(JsonObject update) {
+    public void sendScoreboardMessage(TelegramMessage receivedMessage) {
 
-        /* Message receivedMessage = update.getMessage();
-        String chatId = receivedMessage.getChatId().toString();
+        String message = "";
 
-        SendMessage message = new SendMessage();
-        message.setChatId(chatId);
-        if (receivedMessage.isGroupMessage()) {
+        MessageChat chat = receivedMessage.getChat();
+        String chatId = chat.getId();
+        String text = receivedMessage.getText();
+
+        if (chat.isGroupOrSuperGroup()) {
             if (chatId.equals(groupId)) {
-                if (receivedMessage.getText().equals("/scoreboard")
-                        || receivedMessage.getText().equals("/scoreboard@" + getBotUsername())) {
-                    message.setText(pointsTrackerService.getScoreboardMessage());
+                if (text.equals("/scoreboard") || text.equals("/scoreboard@" + getBotUsername())) {
+                    message = pointsTrackerService.getScoreboardMessage();
                 }
             } else {
-                message.setText("Sorry, this bot only works in certain groups.");
+                message = "Sorry, this bot only works in certain groups.";
             }
         } else {
-            String lastName = receivedMessage.getFrom().getLastName() == null ? ""
-                    : receivedMessage.getFrom().getLastName();
-            message.setText("Sorry " + receivedMessage.getFrom().getFirstName()
-                    + " " + lastName + ", this bot only works in groups.");
+            String lastName = receivedMessage.getSender().getLastName();
+            message = "Sorry " + receivedMessage.getSender().getFirstName() + " " + lastName
+                    + ", this bot only works in groups.";
         }
-        execute(message); */
+
+        JsonObject json = new JsonObject();
+        json.addProperty("chat_id", chatId);
+        json.addProperty("text", message);
+
+        System.out.println(json.getAsString());
+
+        /* try {
+            URL url = new URL(baseUrl + "sendMessage");
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod("POST");
+            con.setRequestProperty("Content-Type", "application/json");
+        } catch (IOException e) {
+            e.printStackTrace();
+        } */
+
     }
 
     public String getBotToken() {
@@ -63,9 +76,6 @@ public class PointsTrackerBot {
 
     public String getBotUsername() {
         return "PointsTrackerBot";
-    }
-
-    public void payloadToJson(String payload) {
     }
 
 }

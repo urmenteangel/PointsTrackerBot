@@ -29,8 +29,7 @@ public class PointsTrackerController {
     @PostMapping("/telegram_payload")
     @ResponseStatus(HttpStatus.OK)
     public void getTelegramPayload(@RequestBody String payload){
-        /* botService.payloadToJson(payload); */
-        System.out.println(payload);
+        service.payloadToTelegramMessage(payload);
     }
 
     
