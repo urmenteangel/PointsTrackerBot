@@ -17,12 +17,12 @@ public class PointsTrackerController {
     @Autowired
     PointsTrackerService service;
 
-    @PostMapping("/github_payload/")
+    @PostMapping("/github_payload")
     @ResponseStatus(HttpStatus.OK)
     public void getGitHubPayload(@RequestBody String payload){
         service.pullTeamData(payload);
     }
-    @PostMapping("/telegram_payload/")
+    @PostMapping("/telegram_payload")
     @ResponseStatus(HttpStatus.OK)
     public void getTelegramPayload(@RequestBody String payload){
         //service.pullTeamData(payload);
