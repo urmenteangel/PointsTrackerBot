@@ -194,9 +194,12 @@ public class PointsTrackerService {
     }
 
     public void payloadToTelegramMessage(String payload) {
+
+        System.out.println(payload);
+
         JsonObject messageJson = gson.fromJson(payload, JsonObject.class);
-        JsonObject senderJson = messageJson.getAsJsonObject("from");
-        JsonObject chatJson = messageJson.getAsJsonObject("chat");
+        JsonObject senderJson = messageJson.get("from").getAsJsonObject();
+        JsonObject chatJson = messageJson.get("chat").getAsJsonObject();
 
         String senderId = senderJson.get("id").getAsString();
         boolean isBot = senderJson.get("is_bot").getAsBoolean();
