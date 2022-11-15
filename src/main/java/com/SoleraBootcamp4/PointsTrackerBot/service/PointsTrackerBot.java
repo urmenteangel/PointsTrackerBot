@@ -60,12 +60,6 @@ public class PointsTrackerBot {
                     + ", this bot only works in groups.";
         }
 
-        JsonObject json = new JsonObject();
-        json.addProperty("chat_id", chatId);
-        json.addProperty("text", message);
-
-        String jsonStringified = json.toString();
-
         try {
             String urlString = baseUrl + "sendmessage";
             HttpPost httpPost = new HttpPost(urlString);
@@ -77,7 +71,7 @@ public class PointsTrackerBot {
             /// Add chatid to the list
             nameValuePairs.add(new BasicNameValuePair("chat_id", chatId + ""));
             /// Add text to the list
-            nameValuePairs.add(new BasicNameValuePair("text", text));
+            nameValuePairs.add(new BasicNameValuePair("text", message));
 
             httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
 
