@@ -70,13 +70,7 @@ public class PointTrackerBot extends TelegramWebhookBot {
 
     @Override
     public String getBotPath() {
-        String webhookUrl = "";
-        try {
-            webhookUrl =  getWebhookInfo().getUrl();
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
-        return webhookUrl;
+        return "https://pointstrackerbot.herokuapp.com/PointsTracker/telegram_payload";
     }
 
 }

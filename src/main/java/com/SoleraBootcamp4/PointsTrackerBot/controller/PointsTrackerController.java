@@ -22,11 +22,11 @@ public class PointsTrackerController {
     public void getGitHubPayload(@RequestBody String payload){
         service.pullTeamData(payload);
     }
-    @PostMapping("/telegram_payload")
+    /* @PostMapping("/telegram_payload")
     @ResponseStatus(HttpStatus.OK)
     public void getTelegramPayload(@RequestBody String payload){
         //service.pullTeamData(payload);
-    }
+    } */
 
     
 }
