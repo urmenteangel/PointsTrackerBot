@@ -93,7 +93,10 @@ public class PointsTrackerService {
 
         String message = "Se ha modificado la clasificación.\n\n";
 
-        bot.sendWinnerMessage(getWinnerMessage(message));
+        message += getWinnerMessage();
+        message += "\n\nPara consultar la nueva clasificación completa, usa \"/scoreboard\".";
+
+        bot.sendWinnerMessage(message);
     }
 
     private ArrayList<SimpleEntry<Integer, String>> getScoreboard(JsonArray jsonT) {
@@ -146,38 +149,32 @@ public class PointsTrackerService {
         return winningTeams;
     }
 
-    private String getWinnerMessage(String startingMessage) {
+    public String getWinnerMessage() {
 
         JsonArray jsonTeams = readJson(LOCAL_TEAM_DATA_LOCATION);
         ArrayList<SimpleEntry<Integer, String>> teams = getScoreboard(jsonTeams);
 
         int maxPoints = teams.get(0).getKey();
         ArrayList<String> winningTeams = getWinningTeams(teams);
+        String message = "";
 
         if (winningTeams.size() > 1) {
-            startingMessage += "¡Hay empate a " + maxPoints + " puntos entre los equipos ";
+            message += "¡Hay empate a " + maxPoints + " puntos entre los equipos ";
             for (int i = 0; i < winningTeams.size(); i++) {
                 if (i == winningTeams.size() - 1) {
-                    startingMessage += "y \"" + formatTeamName(winningTeams.get(i)) + "\"!";
+                    message += "y \"" + formatTeamName(winningTeams.get(i)) + "\"!";
                 } else if (i == winningTeams.size() - 2) {
-                    startingMessage += "\"" + formatTeamName(winningTeams.get(i)) + "\" ";
+                    message += "\"" + formatTeamName(winningTeams.get(i)) + "\" ";
                 } else {
-                    startingMessage += "\"" + formatTeamName(winningTeams.get(i)) + "\", ";
+                    message += "\"" + formatTeamName(winningTeams.get(i)) + "\", ";
                 }
             }
         } else {
-            startingMessage += "Va ganando el equipo \"" + formatTeamName(winningTeams.get(0)) + "\" con " + maxPoints
+            message += "Va ganando el equipo \"" + formatTeamName(winningTeams.get(0)) + "\" con " + maxPoints
                     + " puntos.";
         }
 
-        startingMessage += "\n\nPara consultar la nueva clasificación completa, usa \"/scoreboard\".";
-
-        return startingMessage;
-    }
-
-    public String getWinnerMessage() {
-
-        return getWinnerMessage("");
+        return message;
     }
 
     private String formatTeamName(String teamName) {
