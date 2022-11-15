@@ -35,7 +35,7 @@ public class PointsTrackerBot {
     }
 
     public void sendWinnerMessage(String winnerMessage) {
-        String message = "";
+        sendMessage(winnerMessage, groupId);
     }
 
     public void sendScoreboardMessage(TelegramMessage receivedMessage) {
@@ -60,6 +60,13 @@ public class PointsTrackerBot {
                     + ", this bot only works in groups.";
         }
 
+        if(!message.equals("")){
+            sendMessage(message, chatId);
+        }
+
+    }
+
+    private void sendMessage(String message, String chatId){
         try {
             String urlString = baseUrl + "sendmessage";
             HttpPost httpPost = new HttpPost(urlString);
@@ -82,7 +89,6 @@ public class PointsTrackerBot {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     public String getBotToken() {
