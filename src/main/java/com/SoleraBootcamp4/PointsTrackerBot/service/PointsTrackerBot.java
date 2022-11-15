@@ -1,6 +1,7 @@
 package com.SoleraBootcamp4.PointsTrackerBot.service;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -57,16 +58,23 @@ public class PointsTrackerBot {
         json.addProperty("chat_id", chatId);
         json.addProperty("text", message);
 
-        System.out.println(json.toString());
+        String jsonStringified = json.toString();
 
-        /* try {
+        try {
             URL url = new URL(baseUrl + "sendMessage");
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("POST");
             con.setRequestProperty("Content-Type", "application/json");
+            con.setDoOutput(true);
+
+            try(OutputStream os = con.getOutputStream()) {
+                byte[] input = jsonStringified.getBytes("utf-8");
+                os.write(input, 0, input.length);			
+            }
+
         } catch (IOException e) {
             e.printStackTrace();
-        } */
+        }
 
     }
 
