@@ -28,7 +28,7 @@ public class PointTrackerBot extends TelegramLongPollingBot {
         try {
             SendMessage message = new SendMessage();
             message.setChatId(chatId);
-            if(receivedMessage.isGroupMessage()){
+            if (receivedMessage.isGroupMessage()) {
                 if (chatId.equals(groupId)) {
                     if (receivedMessage.getText().equals("/scoreboard")
                             || receivedMessage.getText().equals("/scoreboard@" + getBotUsername())) {
@@ -38,7 +38,10 @@ public class PointTrackerBot extends TelegramLongPollingBot {
                     message.setText("Sorry, this bot only works in certain groups.");
                 }
             } else {
-                message.setText("Sorry " + receivedMessage.getFrom().getUserName() +", this bot only works in groups.");
+                String lastName = receivedMessage.getFrom().getLastName() == null ? ""
+                        : receivedMessage.getFrom().getLastName();
+                message.setText("Sorry " + receivedMessage.getFrom().getFirstName()
+                        + " " + lastName +", this bot only works in groups.");
             }
             execute(message);
         } catch (TelegramApiException e) {
