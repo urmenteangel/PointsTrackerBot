@@ -35,7 +35,9 @@ public class PointTrackerBot extends TelegramLongPollingBot {
                     execute(message);
                 } else if (receivedMessage.getText().equals("/winner")
                         || receivedMessage.getText().equals("/winner@" + getBotUsername())) {
-                    message.setText(pointsTrackerService.getWinnerMessage());
+                    String messageText = pointsTrackerService.getWinnerMessage();
+                    messageText += "\n\nPara ver la clasificación completa, usa \"/scoreboard\".";
+                    message.setText(messageText);
                     execute(message);
                 }
             }
