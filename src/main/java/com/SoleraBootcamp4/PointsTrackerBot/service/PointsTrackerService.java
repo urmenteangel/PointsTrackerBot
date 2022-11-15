@@ -155,13 +155,13 @@ public class PointsTrackerService {
     }
 
     private String formatTeamName(String teamName) {
-        String formatedTeamName = "";
-        for (int i = 0; i < teamName.length(); i++) {
+        String formatedTeamName = teamName.toLowerCase();
+        for (int i = 0; i < formatedTeamName.length(); i++) {
             if (i == 0) {
-                formatedTeamName = teamName.substring(0, 1).toUpperCase() + teamName.substring(1);
-            } else if (teamName.charAt(i) == ' ') {
-                formatedTeamName = teamName.substring(0, i + 1) + teamName.substring(i + 1, i + 2).toUpperCase()
-                        + teamName.substring(i + 2);
+                formatedTeamName = formatedTeamName.substring(0, 1).toUpperCase() + formatedTeamName.substring(1);
+            } else if (formatedTeamName.charAt(i) == ' ') {
+                formatedTeamName = formatedTeamName.substring(0, i + 1) + formatedTeamName.substring(i + 1, i + 2).toUpperCase()
+                        + formatedTeamName.substring(i + 2);
             }
         }
         return formatedTeamName;
