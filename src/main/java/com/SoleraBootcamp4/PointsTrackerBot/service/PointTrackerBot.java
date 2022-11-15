@@ -45,6 +45,17 @@ public class PointTrackerBot extends TelegramLongPollingBot {
 
     }
 
+    public void sendWinnerMessage(String winnerMessage) {
+        SendMessage message = new SendMessage();
+        message.setChatId(groupId);
+        message.setText(winnerMessage);
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public String getBotToken() {
         return System.getenv("BOT_TOKEN");
