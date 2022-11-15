@@ -26,7 +26,7 @@ public class PointsTrackerService {
 
     private final String LOCAL_TEAM_DATA_LOCATION = System.getenv("LOCAL_TEAM_DATA_LOCATION");
     private final String REMOTE_TEAM_DATA_LOCATION = System.getenv("REMOTE_TEAM_DATA_LOCATION");
-    private final String MAIN_REF = "refs/heads/main";
+    private final String MAIN_REF = System.getenv("MAIN_REF");
     private final String TEAM_DATA_URL = System.getenv("TEAM_DATA_URL");
 
     @Autowired
@@ -52,26 +52,6 @@ public class PointsTrackerService {
         }
     }
 
-    private JsonArray readJson(String path) {
-
-        JsonArray jsonTeams = new JsonArray();
-        try {
-            JsonElement jsonElement = gson.fromJson(new JsonReader(Files.newBufferedReader(Paths.get(path))),
-                    JsonElement.class);
-            JsonObject jsonObject = jsonElement.getAsJsonObject();
-            jsonTeams = jsonObject.getAsJsonArray("teamdata");
-        } catch (JsonIOException e) {
-            e.printStackTrace();
-        } catch (JsonSyntaxException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return jsonTeams;
-
-    }
-
     private boolean isTeamDataModified(String payload) {
         JsonObject json = gson.fromJson(payload,
                 JsonObject.class);
@@ -89,14 +69,23 @@ public class PointsTrackerService {
         return false;
     }
 
-    private void sendDataUpdatedMessage(ArrayList<SimpleEntry<Integer, String>> teams) {
+    private JsonArray readJson(String path) {
 
-        String message = "Se ha modificado la clasificación.\n\n";
+        JsonArray jsonTeams = new JsonArray();
+        try {
+            JsonObject jsonObject = gson.fromJson(new JsonReader(Files.newBufferedReader(Paths.get(path))),
+                    JsonObject.class);
+            jsonTeams = jsonObject.getAsJsonArray("teamdata");
+        } catch (JsonIOException e) {
+            e.printStackTrace();
+        } catch (JsonSyntaxException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-        message += getWinnerMessage();
-        message += "\n\nPara consultar la nueva clasificación completa, usa \"/scoreboard\".";
+        return jsonTeams;
 
-        bot.sendWinnerMessage(message);
     }
 
     private ArrayList<SimpleEntry<Integer, String>> getScoreboard(JsonArray jsonT) {
@@ -115,38 +104,14 @@ public class PointsTrackerService {
         return orderedTeams;
     }
 
-    public String getScoreboardMessage() {
+    private void sendDataUpdatedMessage(ArrayList<SimpleEntry<Integer, String>> teams) {
 
-        JsonArray jsonTeams = readJson(LOCAL_TEAM_DATA_LOCATION);
-        ArrayList<SimpleEntry<Integer, String>> teams = getScoreboard(jsonTeams);
+        String message = "Se ha modificado la clasificación.\n\n";
 
-        String message = "Esta es la clasificación actual: \n";
+        message += getWinnerMessage();
+        message += "\n\nPara consultar la nueva clasificación completa, usa \"/scoreboard\".";
 
-        for (SimpleEntry<Integer, String> team : teams) {
-
-            String teamName = formatTeamName(team.getValue());
-            message += "\n" + (teams.indexOf(team) + 1) + "º: " + teamName + ": " + team.getKey().intValue()
-                    + " puntos.";
-        }
-
-        return message;
-    }
-
-    private ArrayList<String> getWinningTeams(ArrayList<SimpleEntry<Integer, String>> teams) {
-
-        ArrayList<String> winningTeams = new ArrayList<>();
-
-        int maxPoints = teams.get(0).getKey().intValue();
-
-        for (SimpleEntry<Integer, String> team : teams) {
-            if (team.getKey() == maxPoints) {
-                winningTeams.add(team.getValue());
-            } else {
-                break;
-            }
-        }
-
-        return winningTeams;
+        bot.sendWinnerMessage(message);
     }
 
     private String getWinnerMessage() {
@@ -177,6 +142,23 @@ public class PointsTrackerService {
         return message;
     }
 
+    private ArrayList<String> getWinningTeams(ArrayList<SimpleEntry<Integer, String>> teams) {
+
+        ArrayList<String> winningTeams = new ArrayList<>();
+
+        int maxPoints = teams.get(0).getKey().intValue();
+
+        for (SimpleEntry<Integer, String> team : teams) {
+            if (team.getKey() == maxPoints) {
+                winningTeams.add(team.getValue());
+            } else {
+                break;
+            }
+        }
+
+        return winningTeams;
+    }
+
     private String formatTeamName(String teamName) {
         String formatedTeamName = teamName.toLowerCase();
         for (int i = 0; i < formatedTeamName.length(); i++) {
@@ -189,6 +171,23 @@ public class PointsTrackerService {
             }
         }
         return formatedTeamName;
+    }
+
+    public String getScoreboardMessage() {
+
+        JsonArray jsonTeams = readJson(LOCAL_TEAM_DATA_LOCATION);
+        ArrayList<SimpleEntry<Integer, String>> teams = getScoreboard(jsonTeams);
+
+        String message = "Esta es la clasificación actual: \n";
+
+        for (SimpleEntry<Integer, String> team : teams) {
+
+            String teamName = formatTeamName(team.getValue());
+            message += "\n" + (teams.indexOf(team) + 1) + "º: " + teamName + ": " + team.getKey().intValue()
+                    + " puntos.";
+        }
+
+        return message;
     }
 
 }
