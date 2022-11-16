@@ -17,12 +17,9 @@ import org.springframework.stereotype.Service;
 import com.SoleraBootcamp4.PointsTrackerBot.model.MessageChat;
 import com.SoleraBootcamp4.PointsTrackerBot.model.TelegramMessage;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 
 @Service
 public class PointsTrackerBot {
-
-    private Gson gson = new Gson();
 
     private PointsTrackerService pointsTrackerService;
 

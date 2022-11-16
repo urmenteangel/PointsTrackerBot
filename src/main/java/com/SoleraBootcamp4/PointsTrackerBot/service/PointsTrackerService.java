@@ -195,6 +195,9 @@ public class PointsTrackerService {
 
     public void payloadToTelegramMessage(String payload) {
 
+        // TODO:Initialize all String variables to "" and, before trying to get them
+        // from jsonObject, use has(key) to check if exists
+
         System.out.println(payload);
 
         JsonObject messageJson = gson.fromJson(payload, JsonObject.class).get("message").getAsJsonObject();
@@ -212,7 +215,8 @@ public class PointsTrackerService {
         String username = usernameElement != null ? usernameElement.getAsString() : "";
 
         String chatId = chatJson.get("id").getAsString();
-        String title = chatJson.get("title").getAsString();
+        JsonElement titleElement = chatJson.get("title");
+        String title = titleElement != null ? titleElement.getAsString() : "";
 
         String typeElement = chatJson.get("type").getAsString();
         boolean type = (typeElement.equals("supergroup") || typeElement.equals("group")) ? true : false;
