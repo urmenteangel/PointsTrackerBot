@@ -46,7 +46,8 @@ public class PointsTrackerBot {
             if (chatId.equals(groupId)) {
                 if (text.equals("/scoreboard") || text.equals("/scoreboard@" + getBotUsername())) {
                     message = pointsTrackerService.getScoreboardMessage();
-                } else if (text.equals("/help") || text.equals("/ayuda") || text.equals("/ayuda@" + getBotUsername())) {
+                } else if (text.equals("/help") || text.equals("/help@" + getBotUsername()) || text.equals("/ayuda")
+                        || text.equals("/ayuda@" + getBotUsername())) {
                     message = pointsTrackerService.getHelpMessage();
                 }
             } else {
