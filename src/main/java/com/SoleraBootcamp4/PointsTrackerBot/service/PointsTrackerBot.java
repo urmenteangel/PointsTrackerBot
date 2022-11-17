@@ -78,8 +78,7 @@ public class PointsTrackerBot {
             httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
 
             CloseableHttpClient client = HttpClients.createDefault();
-            HttpResponse response = client.execute(httpPost);
-            System.out.println(EntityUtils.toString(response.getEntity()));
+            client.execute(httpPost);
 
         } catch (IOException e) {
             e.printStackTrace();
