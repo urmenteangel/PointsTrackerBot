@@ -54,9 +54,7 @@ public class PointsTrackerBot {
                 message = "Sorry, this bot only works in certain groups.";
             }
         } else {
-            String lastName = receivedMessage.getSender().getLastName();
-            message = "Sorry " + receivedMessage.getSender().getFirstName() + " " + lastName
-                    + ", this bot only works in groups.";
+            message = "Sorry " + receivedMessage.getSender().getUsername() + ", this bot only works in groups.";
         }
 
         if (!message.equals("")) {
