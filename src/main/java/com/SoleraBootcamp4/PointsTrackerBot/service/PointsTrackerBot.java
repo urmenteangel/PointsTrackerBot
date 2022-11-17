@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import com.SoleraBootcamp4.PointsTrackerBot.model.MessageChat;
 import com.SoleraBootcamp4.PointsTrackerBot.model.TelegramMessage;
-import com.google.gson.Gson;
 
 @Service
 public class PointsTrackerBot {
@@ -35,7 +34,7 @@ public class PointsTrackerBot {
         sendMessage(winnerMessage, groupId);
     }
 
-    public void sendScoreboardMessage(TelegramMessage receivedMessage) {
+    public void sendCommandResponse(TelegramMessage receivedMessage) {
 
         String message = "";
 
@@ -47,6 +46,8 @@ public class PointsTrackerBot {
             if (chatId.equals(groupId)) {
                 if (text.equals("/scoreboard") || text.equals("/scoreboard@" + getBotUsername())) {
                     message = pointsTrackerService.getScoreboardMessage();
+                } else if (text.equals("/help") || text.equals("/ayuda") || text.equals("/ayuda@" + getBotUsername())) {
+                    message = pointsTrackerService.getHelpMessage();
                 }
             } else {
                 message = "Sorry, this bot only works in certain groups.";
@@ -57,13 +58,13 @@ public class PointsTrackerBot {
                     + ", this bot only works in groups.";
         }
 
-        if(!message.equals("")){
+        if (!message.equals("")) {
             sendMessage(message, chatId);
         }
 
     }
 
-    private void sendMessage(String message, String chatId){
+    private void sendMessage(String message, String chatId) {
         try {
             String urlString = baseUrl + "sendmessage";
             HttpPost httpPost = new HttpPost(urlString);
