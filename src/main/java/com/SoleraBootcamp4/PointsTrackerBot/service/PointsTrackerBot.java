@@ -78,7 +78,7 @@ public class PointsTrackerBot {
             nameValuePairs.add(new BasicNameValuePair("chat_id", chatId + ""));
             /// Add text to the list
             nameValuePairs.add(new BasicNameValuePair("text", message));
-            nameValuePairs.add(new BasicNameValuePair("parse_mode", "markdown"));
+            nameValuePairs.add(new BasicNameValuePair("parse_mode", "html"));
 
             httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
 
