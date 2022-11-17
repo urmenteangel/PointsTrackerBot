@@ -23,15 +23,14 @@ public class PointsTrackerBot {
     private PointsTrackerService pointsTrackerService;
 
     private final String baseUrl = "https://api.telegram.org/bot" + getBotToken() + "/";
-    private final String groupId = "-1001722891281";
-    // private final String soleraGroupId = "-1001561970415";
+    private final String GROUP_ID = System.getenv("GROUP_ID");
 
     public void setService(PointsTrackerService pointsTrackerService) {
         this.pointsTrackerService = pointsTrackerService;
     }
 
     public void sendWinnerMessage(String winnerMessage) {
-        sendMessage(winnerMessage, groupId);
+        sendMessage(winnerMessage, GROUP_ID);
     }
 
     public void sendCommandResponse(TelegramMessage receivedMessage) {
@@ -43,7 +42,7 @@ public class PointsTrackerBot {
         String text = receivedMessage.getText();
 
         if (chat.isGroupOrSuperGroup()) {
-            if (chatId.equals(groupId)) {
+            if (chatId.equals(GROUP_ID)) {
                 if (text.equals("/scoreboard") || text.equals("/scoreboard@" + getBotUsername())) {
                     message = pointsTrackerService.getScoreboardMessage();
                 } else if (text.equals("/help") || text.equals("/help@" + getBotUsername()) || text.equals("/ayuda")
@@ -51,10 +50,10 @@ public class PointsTrackerBot {
                     message = pointsTrackerService.getHelpMessage();
                 }
             } else {
-                message = "Sorry, this bot only works in certain groups.";
+                message = "Sorry @" + receivedMessage.getSender().getUsername() + ", this bot only works in certain groups.";
             }
         } else {
-            message = "Sorry " + receivedMessage.getSender().getUsername() + ", this bot only works in groups.";
+            message = "Sorry @" + receivedMessage.getSender().getUsername() + ", this bot only works in groups.";
         }
 
         if (!message.equals("")) {
@@ -70,11 +69,9 @@ public class PointsTrackerBot {
             httpPost.addHeader("Content-type", "application/x-www-form-urlencoded");
             httpPost.addHeader("charset", "UTF-8");
 
-            /// Create list of parameters
             List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-            /// Add chatid to the list
+            
             nameValuePairs.add(new BasicNameValuePair("chat_id", chatId + ""));
-            /// Add text to the list
             nameValuePairs.add(new BasicNameValuePair("text", message));
             nameValuePairs.add(new BasicNameValuePair("parse_mode", "html"));
 
