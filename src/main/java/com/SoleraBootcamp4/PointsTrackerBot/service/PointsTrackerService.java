@@ -236,7 +236,7 @@ public class PointsTrackerService {
         String message = "Este bot manda el equipo (o los equipos, si hay empate) que va ganando cada vez que se" +
         " actualizan los puntos en el GitHub.\n\nAdemás, también dispone de los siguientes comandos:\n" +
         "*/scoreboard*: Mostrar la clasificación completa.\n" +
-        "*/ayuda:* ¿De verdad no sabes lo que hace? _(Tambien se puede escribir */help*)_\n" +
+        "*/ayuda:* ¿De verdad no sabes lo que hace? _(Tambien se puede escribir_ */help*_)_\n" +
         "El bot puede tardar en responder de 5 a 10 segundos si no se ha recibido peticiones durante mucho tiempo.";
         return message;
     }
