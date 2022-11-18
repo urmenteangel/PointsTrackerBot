@@ -202,6 +202,8 @@ public class PointsTrackerService {
 
     private TelegramMessage telegramJsonParser(String payload) {
 
+        System.out.println("Payload: " + payload);
+
         JsonObject messageJson = gson.fromJson(payload, JsonObject.class).get("message").getAsJsonObject();
         JsonObject senderJson = messageJson.get("from").getAsJsonObject();
         JsonObject chatJson = messageJson.get("chat").getAsJsonObject();
