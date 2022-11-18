@@ -197,7 +197,7 @@ public class PointsTrackerService {
 
         TelegramMessage message = telegramJsonParser(payload);
 
-        bot.sendCommandResponse(message);
+        if(message != null) bot.sendCommandResponse(message);
     }
 
     private TelegramMessage telegramJsonParser(String payload) {
@@ -205,41 +205,44 @@ public class PointsTrackerService {
         System.out.println("Payload: " + payload);
 
         JsonObject messageJson = gson.fromJson(payload, JsonObject.class).get("message").getAsJsonObject();
-        JsonObject senderJson = messageJson.get("from").getAsJsonObject();
-        JsonObject chatJson = messageJson.get("chat").getAsJsonObject();
 
-        String senderId = senderJson.get("id").getAsString();
-        boolean isBot = senderJson.get("is_bot").getAsBoolean();
-        String firstName = senderJson.get("first_name").getAsString();
+        if (messageJson.has("text")) {
+            JsonObject senderJson = messageJson.get("from").getAsJsonObject();
+            JsonObject chatJson = messageJson.get("chat").getAsJsonObject();
 
-        JsonElement lastNameElement = senderJson.get("last_name");
-        String lastName = lastNameElement != null ? lastNameElement.getAsString() : "";
+            String senderId = senderJson.get("id").getAsString();
+            boolean isBot = senderJson.get("is_bot").getAsBoolean();
+            String firstName = senderJson.get("first_name").getAsString();
 
-        JsonElement usernameElement = senderJson.get("username");
-        String username = usernameElement != null ? usernameElement.getAsString() : "";
+            JsonElement lastNameElement = senderJson.get("last_name");
+            String lastName = lastNameElement != null ? lastNameElement.getAsString() : "";
 
-        String chatId = chatJson.get("id").getAsString();
-        JsonElement titleElement = chatJson.get("title");
-        String title = titleElement != null ? titleElement.getAsString() : "";
+            JsonElement usernameElement = senderJson.get("username");
+            String username = usernameElement != null ? usernameElement.getAsString() : "";
 
-        String typeElement = chatJson.get("type").getAsString();
-        boolean type = (typeElement.equals("supergroup") || typeElement.equals("group")) ? true : false;
+            String chatId = chatJson.get("id").getAsString();
+            JsonElement titleElement = chatJson.get("title");
+            String title = titleElement != null ? titleElement.getAsString() : "";
 
-        MessageSender sender = new MessageSender(senderId, isBot, firstName, lastName, username);
-        MessageChat chat = new MessageChat(chatId, title, type);
+            String typeElement = chatJson.get("type").getAsString();
+            boolean type = (typeElement.equals("supergroup") || typeElement.equals("group")) ? true : false;
 
-        String text = messageJson.get("text").getAsString();
+            MessageSender sender = new MessageSender(senderId, isBot, firstName, lastName, username);
+            MessageChat chat = new MessageChat(chatId, title, type);
 
-        TelegramMessage message = new TelegramMessage(sender, chat, text);
-        return message;
+            String text = messageJson.get("text").getAsString();
+            TelegramMessage message = new TelegramMessage(sender, chat, text);
+            return message;
+        }
+        return null;
     }
 
     public String getHelpMessage() {
         String message = "Este bot manda el equipo (o los equipos, si hay empate) que va ganando cada vez que se" +
-        " actualizan los puntos en el GitHub.\n\nAdemás, también dispone de los siguientes comandos:\n" +
-        "<b>/scoreboard</b>: Mostrar la clasificación completa.\n" +
-        "<b>/ayuda:</b> ¿De verdad no sabes lo que hace? <i>(Tambien se puede escribir <b>/help</b>)</i>\n\n" +
-        "El bot puede tardar en responder de 10 a 15 segundos si no se ha recibido peticiones durante mucho tiempo.";
+                " actualizan los puntos en el GitHub.\n\nAdemás, también dispone de los siguientes comandos:\n" +
+                "<b>/scoreboard</b>: Mostrar la clasificación completa.\n" +
+                "<b>/ayuda:</b> ¿De verdad no sabes lo que hace? <i>(Tambien se puede escribir <b>/help</b>)</i>\n\n" +
+                "El bot puede tardar en responder de 10 a 15 segundos si no se ha recibido peticiones durante mucho tiempo.";
         return message;
     }
 
